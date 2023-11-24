@@ -18,7 +18,7 @@ impl<'a> BspFile<'a> {
             p: 0x50,
         };
         // TODO: Use this to decide on the version to parse it as
-        const EXPECTED_VERSION: u32 = 0x15;
+        const EXPECTED_VERSION: u32 = 0x14;
 
         let mut cursor = Cursor::new(data);
         let header: Header = cursor.read_le()?;
