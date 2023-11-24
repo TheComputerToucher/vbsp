@@ -12,13 +12,13 @@ pub struct BspFile<'a> {
 impl<'a> BspFile<'a> {
     pub fn new(data: &'a [u8]) -> BspResult<Self> {
         const EXPECTED_HEADER: Header = Header {
-            v: b'V',
-            b: b'B',
-            s: b'S',
-            p: b'P',
+            v: 0x56,
+            b: 0x42,
+            s: 0x53,
+            p: 0x50,
         };
         // TODO: Use this to decide on the version to parse it as
-        const EXPECTED_VERSION: u32 = 0x14;
+        const EXPECTED_VERSION: u32 = 0x15;
 
         let mut cursor = Cursor::new(data);
         let header: Header = cursor.read_le()?;
