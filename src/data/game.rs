@@ -157,14 +157,14 @@ impl BinRead for StaticPropLump {
     ) -> BinResult<Self> {
         match args.0 {
             6 => StaticPropLumpV6::read_options(reader, endian, ()).map(StaticPropLump::from),
-            /*7 | 9 | 10*/_ => StaticPropLumpV10::read_options(reader, endian, ()).map(StaticPropLump::from),
-            // version => Err(binrw::Error::Custom {
-            //     err: Box::new(UnsupportedLumpVersion {
-            //         lump_type: "static props",
-            //         version,
-            //     }),
-            //     pos: reader.stream_position().unwrap(),
-            // }),
+            7 | 9 | 10 => StaticPropLumpV10::read_options(reader, endian, ()).map(StaticPropLump::from),
+            version => Err(binrw::Error::Custom {
+                err: Box::new(UnsupportedLumpVersion {
+                    lump_type: "static props",
+                    version,
+                }),
+                pos: reader.stream_position().unwrap(),
+            }),
         }
     }
 }
