@@ -1,11 +1,13 @@
 mod displacement;
 mod entity;
 mod game;
+mod prop;
 mod vector;
 
 pub use self::displacement::*;
 pub use self::entity::*;
 pub use self::game::*;
+pub use self::prop::PropPlacement;
 pub use self::vector::*;
 use crate::bspfile::LumpType;
 use crate::{BspResult, StringError};
@@ -172,8 +174,8 @@ impl<const LEN: usize> BinRead for FixedString<LEN> {
 
 #[derive(Debug, Clone, BinRead)]
 pub struct TextureInfo {
-    pub texture_scale: [f32; 4],
-    pub texture_transform: [f32; 4],
+    pub texture_transforms_u: [f32; 4],
+    pub texture_transforms_v: [f32; 4],
     pub light_map_scale: [f32; 4],
     pub light_map_transform: [f32; 4],
     pub flags: TextureFlags,
@@ -425,6 +427,16 @@ impl VisData {
     }
 }
 
+#[derive(Debug, Clone, BinRead)]
+pub struct VertNormal {
+    pub normal: f32,
+}
+
+#[derive(Debug, Clone, BinRead)]
+pub struct VertNormalIndex {
+    pub index: i16,
+}
+
 pub struct Packfile {
     zip: Mutex<ZipArchive<Cursor<Vec<u8>>>>,
 }
@@ -475,6 +487,24 @@ impl Packfile {
         let mut buff = vec![0; entry.size() as usize];
         entry.read_exact(&mut buff)?;
         Ok(Some(buff))
+    }
+
+    pub fn has(&self, name: &str) -> BspResult<bool> {
+        let mut zip = self.zip.lock().unwrap();
+        let result = match zip.by_name(name) {
+            Ok(_) => Ok(true),
+            Err(ZipError::FileNotFound) => {
+                return Ok(false);
+            }
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+        result
+    }
+
+    pub fn into_zip(self) -> Mutex<ZipArchive<Cursor<Vec<u8>>>> {
+        self.zip
     }
 }
 
